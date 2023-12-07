@@ -1,8 +1,9 @@
 {
   "cluster" : {
     "owner" : "cluster-admin@company.com",
-    "address" : "https://1.2.3.4:56789",
-    "name" : "engineering-dev"
+    "address" : "https://kubernetes.default.svc",
+    "name" : "gitopscluster",
+    "namespace" : "devenv"
   },
   "asset_id" : "12345678",
   "aws_account" : "123456"
