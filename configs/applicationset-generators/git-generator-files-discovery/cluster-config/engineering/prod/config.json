@@ -1,8 +1,9 @@
 {
   "cluster" : {
     "owner" : "cluster-admin@company.com",
-    "address" : "https://1.2.3.4:56789",
-    "name" : "engineering-prod"
+    "address" : "https://kubernetes.default.svc",
+    "name" : "gitopscluster",
+    "namespace" : "prodenv"
   },
   "asset_id" : "12345678",
   "aws_account" : "123456"
