@@ -1,0 +1,22 @@
+gitops:
+  name: gitops-application
+  projectIdentifier: default_project
+  orgIdentifier: default
+  type: application
+  application:
+    metadata:
+      clusterName: gitops_cluster
+      labels:
+        harness.io/serviceRef: harnessguestbook
+        harness.io/envRef: harnessdevenv
+    spec:
+      source:
+        repoURL: https://github.com/dewan-ahmed/harness-gitops-workshop
+        path: configs/applicationset-generators/git-generator-files-discovery/apps/podinfo
+        targetRevision: main
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: default
+  agentIdentifier: AGENT_NAME
+  clusterIdentifier: gitopscluster
+  repoIdentifier: gitopsrepo
