@@ -8,7 +8,7 @@ spec:
         repoURL: https://github.com/dewan-ahmed/harness-gitops-workshop.git  
         revision: HEAD  
         files:  
-        - path: "configs/applicationset-generators/git-generator-files-discovery/cluster-config/**/config.json"  
+        - path: "configs/git-generator-files-discovery/cluster-config/**/config.json"  
   template:  
     metadata:  
       name: '{{cluster.namespace}}-podinfo'  
@@ -17,7 +17,7 @@ spec:
       source:  
         repoURL: https://github.com/dewan-ahmed/harness-gitops-workshop.git  
         targetRevision: HEAD  
-        path: "configs/applicationset-generators/git-generator-files-discovery/apps/podinfo"  
+        path: "configs/git-generator-files-discovery/apps/podinfo"  
       destination:  
         server: '{{cluster.address}}'  
         namespace: '{{cluster.namespace}}'  
