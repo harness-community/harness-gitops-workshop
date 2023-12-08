@@ -7,16 +7,16 @@ gitops:
     metadata:
       clusterName: gitops_cluster
       labels:
-        harness.io/serviceRef: harnessguestbook
-        harness.io/envRef: harnessdevenv
+        harness.io/serviceRef: ""
+        harness.io/envRef: ""
     spec:
       source:
         repoURL: https://github.com/dewan-ahmed/harness-gitops-workshop
-        path: configs/applicationset-generators/git-generator-files-discovery/apps/podinfo
+        path: configs/git-generator-files-discovery
         targetRevision: main
       destination:
         server: https://kubernetes.default.svc
         namespace: default
   agentIdentifier: AGENT_NAME
-  clusterIdentifier: gitopscluster
+  clusterIdentifier: agentcluster
   repoIdentifier: gitopsrepo
