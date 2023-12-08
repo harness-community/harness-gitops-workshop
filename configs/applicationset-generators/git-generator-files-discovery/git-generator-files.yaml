@@ -11,7 +11,7 @@ spec:
         - path: "configs/applicationset-generators/git-generator-files-discovery/cluster-config/**/config.json"  
   template:  
     metadata:  
-      name: '{{cluster.name}}-podinfo'  
+      name: '{{cluster.namespace}}-podinfo'  
     spec:  
       project: 01fe3e37  
       source:  
