@@ -13,13 +13,13 @@ spec:
     metadata:  
       name: '{{cluster.name}}-podinfo'  
     spec:  
-      project: default  
+      project: 01fe3e37  
       source:  
         repoURL: https://github.com/dewan-ahmed/harness-gitops-workshop.git  
         targetRevision: HEAD  
         path: "configs/applicationset-generators/git-generator-files-discovery/apps/podinfo"  
       destination:  
         server: '{{cluster.address}}'  
-        namespace: default  
+        namespace: '{{cluster.namespace}}'  
       syncPolicy:  
         automated: {}
