@@ -19,3 +19,14 @@ In this section, you'll create two secrets and two connectors for GitHub and Doc
 
 From your project setup, click on **Secrets**, then **+ New Secret**, and select **Text**. Use the Harness Built-in Secrets Manager. Give this secret a name `github_pat` and paste in the Personal Access Token (PAT) for GitHub. Similarly, create an access token for Docker Hub and name it `docker_secret`.
 
+Now, let's create connectors for GitHub and Docker Hub. From your project setup, click on **Connectors**, then **GitHub** from the code repositories section. 
+
+[TODO]...
+
+## Build the CI stage
+
+## Create the ApplicationSet 
+
+## Create the PR Pipeline
+
+## Test the setup
