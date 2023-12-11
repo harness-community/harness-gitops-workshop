@@ -10,6 +10,7 @@ In this workshop, we'll use the Harness CI, CD, and GitOps modules to demonstrat
 - A GitHub account. [Fork the Harness GitOps repo](https://github.com/dewan-ahmed/harness-gitops-workshop/fork)
 - A Docker Hub account. However, any other image registry will also suffice.
 - A Kubernetes cluster. A setup like [k3d](https://k3d.io/) will be suitable.
+- [Install the Harness CLI](https://developer.harness.io/docs/platform/automation/cli/install/) and [log in](https://developer.harness.io/docs/platform/automation/cli/install/#configure-harness-cli).
 
 ## Required setup and configurations
 
@@ -22,6 +23,20 @@ From your project setup, click on **Secrets**, then **+ New Secret**, and select
 Now, let's create connectors for GitHub and Docker Hub. From your project setup, click on **Create via YAML Builder**, then paste in contents of [github-connector.yaml](cli-manifests/github-connector.yaml) (remember to replace **YOUR_HARNESS_ACCOUNT_ID** and **YOUR_GITHUB_USERNAME**). Similarly, create a Docker Hub connector following [docker-connector.yaml](cli-manifests/docker-connector.yaml) (remember to replace **YOUR_HARNESS_ACCOUNT_ID** and **YOUR_DOCKER_USERNAME**).
 
 ## Build the CI stage
+
+Next, let's create the Continuous Integration (CI) pipeline that will do the following:
+
+- Clone the repository
+- Run OWASP tests
+- If tests pass, will create a build, and push the container image to your docker registry
+
+Navigate to `cli-manifests` directory and update `pipeline.yaml` to replace **YOUR_DOCKER_USERNAME** with your docker username. 
+
+Execute the following command to create the `cicd-gitops-pipeline` with the CI stage:
+
+```bash
+harness pipeline --file pipeline.yaml apply
+```
 
 ## Create the ApplicationSet 
 
