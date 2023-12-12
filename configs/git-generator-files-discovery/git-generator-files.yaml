@@ -5,7 +5,7 @@ metadata:
 spec:  
   generators:  
     - git:  
-        repoURL: https://github.com/dewan-ahmed/harness-gitops-workshop.git  
+        repoURL: https://github.com/YOUR_GITHUB_USERNAME/harness-gitops-workshop.git  
         revision: HEAD  
         files:  
         - path: "configs/git-generator-files-discovery/cluster-config/**/config.json"  
@@ -13,13 +13,14 @@ spec:
     metadata:  
       name: '{{cluster.namespace}}-podinfo'  
     spec:  
-      project: 01fe3e37  
+      project: YOUR_ARGO_PROJECT_ID  
       source:  
-        repoURL: https://github.com/dewan-ahmed/harness-gitops-workshop.git  
+        repoURL: https://github.com/YOUR_GITHUB_USERNAME/harness-gitops-workshop.git  
         targetRevision: HEAD  
         path: "configs/git-generator-files-discovery"  
       destination:  
         server: '{{cluster.address}}'  
         namespace: '{{cluster.namespace}}'  
       syncPolicy:  
-        automated: {}
+        syncOptions:
+        - CreateNamespace=true
