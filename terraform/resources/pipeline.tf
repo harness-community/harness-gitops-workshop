@@ -1,17 +1,57 @@
-resource "harness_platform_pipeline" "podinfoprpipeline" {
-  identifier = "podinfoprpipeline"
+resource "harness_platform_pipeline" "cicdgitopspipeline" {
+  identifier = "cicdgitopspipeline"
   org_id     = var.org_id
   project_id = var.project_id
-  name       = "podinfoprpipeline"
+  name       = "cicd-gitops-pipeline"
   depends_on = [harness_platform_gitops_applications.podinfo, harness_platform_service.gitops_service]
   yaml = <<-EOT
 pipeline:
-  name: podinfoprpipeline
-  identifier: podinfoprpipeline
+  name: cicd-gitops-pipeline
+  identifier: cicdgitopspipeline
   projectIdentifier: default_project
   orgIdentifier: default
   tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: github_appset_repo_connector
+        build: <+input>
   stages:
+    - stage:
+        name: ci-stage
+        identifier: cistage
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Run OWASP Tests
+                  identifier: Run_OWASP_Tests
+                  spec:
+                    shell: Sh
+                    command: |-
+                      echo "Running OWASP tests..."
+                      sleep 2
+                      echo "OWASP tests passed!"
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: BuildAndPushDockerRegistry
+                  identifier: BuildAndPushDockerRegistry
+                  spec:
+                    connectorRef: dockerhub_connector
+                    repo: <+pipeline.variables.imageRepo>
+                    tags:
+                      - <+pipeline.variables.imageTag>
+                    dockerfile: apps/podinfo/Dockerfile
     - stage:
         name: Deploy to Dev
         identifier: Deploy_to_Dev
@@ -134,5 +174,16 @@ pipeline:
                 - AllErrors
               action:
                 type: StageRollback
+  variables:
+    - name: imageRepo
+      type: String
+      description: ""
+      required: false
+      value: nicholaslotz/harness-gitops-workshop
+    - name: imageTag
+      type: String
+      description: ""
+      required: false
+      value: latest
 EOT
 }

@@ -26,9 +26,9 @@ resource "harness_platform_gitops_applications" "podinfo" {
         ]
       }
       source {
-        target_revision = "master"
+        target_revision = "main"
         repo_url        = var.repo_url
-        path            = "examples/git-generator-files-discovery"
+        path            = "configs/git-generator-files-discovery"
 
       }
       destination {
