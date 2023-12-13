@@ -45,6 +45,7 @@ pipeline:
                     tags:
                       - <+pipeline.variables.imageTag>
                     dockerfile: apps/podinfo/Dockerfile
+                    context: apps/podinfo
   variables:
     - name: imageRepo
       type: String
