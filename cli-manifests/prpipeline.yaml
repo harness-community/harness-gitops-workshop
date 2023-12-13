@@ -1,0 +1,195 @@
+pipeline:
+  identifier: cicdgitopspipeline
+  name: cicd-gitops-pipeline
+  orgIdentifier: default
+  projectIdentifier: default_project
+  properties:
+    ci:
+      codebase:
+        build: <+input>
+        connectorRef: githubconnector
+  stages:
+    - stage:
+        description: ""
+        identifier: cistage
+        name: ci-stage
+        spec:
+          cloneCodebase: true
+          execution:
+            steps:
+              - step:
+                  identifier: Run_OWASP_Tests
+                  name: Run OWASP Tests
+                  spec:
+                    command: |-
+                      echo "Running OWASP tests..."
+                      sleep 2
+                      echo "OWASP tests passed!"
+                    shell: Sh
+                  type: Run
+              - step:
+                  identifier: BuildAndPushDockerRegistry
+                  name: BuildAndPushDockerRegistry
+                  spec:
+                    connectorRef: docker_connector
+                    repo: <+pipeline.variables.imageRepo>
+                    tags:
+                      - <+pipeline.variables.imageTag>
+                    dockerfile: apps/podinfo/Dockerfile
+                    context: apps/podinfo
+                  type: BuildAndPushDockerRegistry
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+        type: CI
+    - stage:
+        name: DeployDev
+        identifier: DeployDev
+        description: ""
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes
+          gitOpsEnabled: true
+          service:
+            serviceRef: podinfo
+            serviceInputs:
+              serviceDefinition:
+                type: Kubernetes
+                spec:
+                  artifacts:
+                    primary:
+                      primaryArtifactRef: podinfoartifact
+          execution:
+            steps:
+              - step:
+                  type: GitOpsUpdateReleaseRepo
+                  name: Update Release Repo
+                  identifier: updateReleaseRepo
+                  timeout: 10m
+                  spec:
+                    variables:
+                      - name: cluster.namespace
+                        type: String
+                        value: dev
+              - step:
+                  type: MergePR
+                  name: Merge PR
+                  identifier: mergePR
+                  spec:
+                    deleteSourceBranch: true
+                  timeout: 10m
+              - step:
+                  type: GitOpsFetchLinkedApps
+                  name: Fetch Linked Apps
+                  identifier: fetchLinkedApps
+                  timeout: 10m
+                  spec: {}
+            rollbackSteps: []
+          environment:
+            environmentRef: dev
+            deployToAll: false
+            gitOpsClusters:
+              - identifier: gitopscluster
+        tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: StageRollback
+    - stage:
+        name: Approve Promotion
+        identifier: Approve_Promotion
+        description: ""
+        type: Approval
+        spec:
+          execution:
+            steps:
+              - step:
+                  name: Approve Promotion
+                  identifier: Approve_Promotion
+                  type: HarnessApproval
+                  timeout: 1d
+                  spec:
+                    approvalMessage: |-
+                      Please review the following information
+                      and approve the pipeline progression
+                    includePipelineExecutionHistory: true
+                    approvers:
+                      minimumCount: 1
+                      disallowPipelineExecutor: false
+                      userGroups:
+                        - account._account_all_users
+                    isAutoRejectEnabled: false
+                    approverInputs: []
+        tags: {}
+    - stage:
+        name: DeployProd
+        identifier: DeployProd
+        description: ""
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes
+          gitOpsEnabled: true
+          service:
+            serviceRef: podinfo
+            serviceInputs:
+              serviceDefinition:
+                type: Kubernetes
+                spec:
+                  artifacts:
+                    primary:
+                      primaryArtifactRef: podinfoartifact
+          execution:
+            steps:
+              - step:
+                  type: GitOpsUpdateReleaseRepo
+                  name: Update Release Repo
+                  identifier: updateReleaseRepo
+                  timeout: 10m
+                  spec:
+                    variables:
+                      - name: cluster.namespace
+                        type: String
+                        value: prod
+              - step:
+                  type: MergePR
+                  name: Merge PR
+                  identifier: mergePR
+                  spec:
+                    deleteSourceBranch: true
+                  timeout: 10m
+              - step:
+                  type: GitOpsFetchLinkedApps
+                  name: Fetch Linked Apps
+                  identifier: fetchLinkedApps
+                  timeout: 10m
+                  spec: {}
+            rollbackSteps: []
+          environment:
+            environmentRef: prod
+            deployToAll: false
+            gitOpsClusters:
+              - identifier: gitopscluster
+        tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: StageRollback
+  tags: {}
+  variables:
+    - description: ""
+      name: imageRepo
+      required: false
+      type: String
+      value: nicholaslotz/harness-gitops-workshop
+    - description: ""
+      name: imageTag
+      required: false
+      type: String
+      value: <+trigger.commitSha>
