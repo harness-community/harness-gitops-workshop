@@ -175,6 +175,48 @@ Under **GitOps: Applications**, click on **gitops-application** and click **Sync
 
 ## Create the PR Pipeline
 
+Harness Pipelines define steps needed to built, test and deploy your application. You described your deployment using the GitOps entities you set up previously. You will now create a pipeline that performs the following steps:
+
+- Compiles the **podinfo** source code
+- Builds an publishes the updated app to Docker Hub
+- Creates and merges GitHub Pull Request of any configuration changes to the dev environment
+- Enforces a manual approval to proceed in deploying to to prod
+- Creates and merges a GitHub Pull Request of any configuration changes to the prod environment
+
+Harness pipelines require a [delegate](https://developer.harness.io/docs/first-gen/firstgen-platform/account/manage-delegates/delegate-installation/) to execute pipeline tasks. Run the following command to install the delegate in your cluster (the same cluster in which you have the agent installed). 
+
+```
+helm repo add harness-delegate https://app.harness.io/storage/harness-download/delegate-helm-chart/
+helm repo update harness-delegate
+helm upgrade -i helm-delegate --namespace harness-delegate-ng --create-namespace \
+  harness-delegate/harness-delegate-ng \
+  --set delegateName=helm-delegate \
+  --set accountId=HARNESS_ACCOUNT_ID \
+  --set delegateToken=DELEGATE_TOKEN \
+  --set managerEndpoint=https://app.harness.io/gratis \
+  --set delegateDockerImage=harness/delegate:23.11.81601 \
+  --set replicas=1 --set upgrader.enabled=true
+```
+
+Then navigate to **Project Setup > Delegates** and see your delegate check into Harness.
+
+Next, run the following commands to create your environment and service entities.
+
+```
+harness environment --file environment-dev.yaml apply
+harness environment --file environment-prod.yaml apply
+harness service --file service.yaml apply
+```
+
+After applying the manifests, mavigate to the **Environments** tab. Click into each of the dev and prod environments and map your **gitops_cluster** to both of them.
+
+Run the following command to update pipeline with CD stages.
+
+`harness pipeline --file prpipeline.yml apply`
+
+Finally, create a trigger to run the PR pipeline when new code is committed to the **main** branch.
+
+
 ## Test the setup
 
 ## Automate using Terraform
