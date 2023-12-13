@@ -176,3 +176,64 @@ Under **GitOps: Applications**, click on **gitops-application** and click **Sync
 ## Create the PR Pipeline
 
 ## Test the setup
+
+## Automate using Terraform
+
+For this section, you need to [install Terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli).
+
+You can create, modify, and delete Harness resources using the [Harness Terraform Provider](https://registry.terraform.io/providers/harness/harness/latest/docs). In order to do that, you need:
+
+- An admin access for your Harness Account.
+- A Personal Access Token (PAT) or a Service Access Token (SAT).
+
+Navigate to the **terraform** directory. This directory has two Terraform modules - one to set up the Kubernetes cluster and the other to configure that cluster and setup Harness resource.
+
+### Create a k3d cluster
+
+Navigate to **k3d** directory. The provided Terraform configuration in this directory creates a new Kubernetes cluster using k3d, which is a tool for running lightweight Kubernetes clusters in Docker. The cluster is named **gitopscluster**. Additionally, the configuration updates the default kubeconfig file on your system to include this new cluster and sets it as the current context, allowing immediate interaction with the cluster using kubectl.
+
+Execute the following Terraform commands:
+
+```shell
+terraform init
+terraform apply
+```
+
+Enter "yes" when prompted, and Terraform will create a k3d cluster for you.
+
+### Configure k3d cluster and create Harness resources
+
+Navigate to **resources** directory. Most of the Terraform automation is part of this directory. These Terraform manifests create the two namespaces on your Kubernetes cluster, creates a Harness GitOps Agent, creates secrets and connectors, various Harness GitOps entities, and last but not the least, the Harness PR pipeline.
+
+Before you execute Terraform commands, you need to do the following:
+
+1. Open the `terraform.tfvars` file and replace **YOUR_GITHUB_USERNAME** and **YOUR_DOCKER_USERNAME** with actual values.
+2. For sensitive values such as account ID and access tokens, you would ideally fetch the values from a central secrets manager. For this workshop, you'll export the values as environment variables rather than hardcoding them in the *.tfvars file. Export the following variables with their values:
+
+```shell
+export TF_VAR_delegate_token=VALUE
+export TF_VAR_harness_api_token=VALUE
+export TF_VAR_github_pat=VALUE
+export TF_VAR_dockerhub_pat=VALUE
+export TF_VAR_account_id=VALUE
+```
+
+- [Generate a Harness delegate token](https://developer.harness.io/docs/platform/delegates/secure-delegates/secure-delegates-with-tokens/) 
+- [Generate a Harness Personal Access Token](https://developer.harness.io/docs/platform/automation/api/add-and-manage-api-keys/)
+- [Generate a GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
+- [Generate a Docker Personal Access Token](https://docs.docker.com/security/for-developers/access-tokens/)
+- You can find your account ID in any Harness URL, for example:
+```shell
+https://app.harness.io/ng/#/account/ACCOUNT_ID/home/get-started
+``` 
+
+Execute the following Terraform commands:
+
+```shell
+terraform init
+terraform apply -var-file="terraform.tfvars" 
+```
+
+Enter "yes" when prompted, and Terraform will configure and create the resources for you.
+
+

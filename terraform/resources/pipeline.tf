@@ -179,7 +179,7 @@ pipeline:
       type: String
       description: ""
       required: false
-      value: nicholaslotz/harness-gitops-workshop
+      value: var.github_username/harness-gitops-workshop
     - name: imageTag
       type: String
       description: ""
