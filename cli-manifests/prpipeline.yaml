@@ -73,7 +73,6 @@ pipeline:
                           rm -rf harness-gitops-workshop
                           git config --global user.email ci-bot@argocd.com && git config --global user.name ci-bot
                           echo "cloning repo..."
-                          echo "<+secrets.getValue("github_pat")>"
                           GITHUBPAT=<+secrets.getValue("github_pat")>
                           git clone https://oauth2:$GITHUBPAT@github.com/GITHUB_USERNAME/harness-gitops-workshop.git
                           cd harness-gitops-workshop
