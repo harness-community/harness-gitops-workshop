@@ -21,7 +21,7 @@ trigger:
           payloadConditions:
             - key: changedFiles
               operator: NotIn
-              value: configs/git-generator-files-discovery/cluster-config/engineering/
+              value: configs/git-generator-files-discovery/
             - key: targetBranch
               operator: Equals
               value: main
