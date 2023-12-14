@@ -20,7 +20,26 @@ In this section, you'll create two secrets and two connectors for GitHub and Doc
 
 From your project setup, click on **Secrets**, then **+ New Secret**, and select **Text**. Use the Harness Built-in Secrets Manager. Give this secret a name `github_pat` and paste in the Personal Access Token (PAT) for GitHub. Similarly, create an access token for Docker Hub and name it `docker_secret`.
 
-Now, let's create connectors for GitHub and Docker Hub. From your project setup, click on **Create via YAML Builder**, then paste in contents of [github-connector.yaml](cli-manifests/github-connector.yaml) (remember to replace **YOUR_HARNESS_ACCOUNT_ID** and **YOUR_GITHUB_USERNAME**). Similarly, create a Docker Hub connector following [docker-connector.yaml](cli-manifests/docker-connector.yaml) (remember to replace **YOUR_HARNESS_ACCOUNT_ID** and **YOUR_DOCKER_USERNAME**).
+Now, let's create connectors for GitHub and Docker Hub. Navigate to **cli-manifests** directory. Open [github-connector.yaml](cli-manifests/github-connector.yaml) on your local machine and replace **YOUR_HARNESS_ACCOUNT_ID** and **YOUR_GITHUB_USERNAME** with actual values. 
+
+You can find your Harness account ID in any Harness URL, for example:
+```shell
+https://app.harness.io/ng/#/account/ACCOUNT_ID/home/get-started
+```
+
+Similarly, replace the placeholder values in the [docker-connector.yaml](cli-manifests/docker-connector.yaml) file.
+
+To create a GitHub connector, execute the following:
+
+```shell
+harness connector --file github-connector.yaml apply
+```
+
+Enter your github username and press **Enter**. Next, create a Docker Hub Connector:
+
+```shell
+harness connector --file docker-connector.yaml apply
+```
 
 ## Build the CI stage
 
@@ -30,7 +49,7 @@ Next, let's create the Continuous Integration (CI) pipeline that will do the fol
 - Run OWASP tests
 - If tests pass, will create a build, and push the container image to your docker registry
 
-Navigate to `cli-manifests` directory and update `pipeline.yaml` to replace **YOUR_DOCKER_USERNAME** with your docker username. 
+Make sure that you're in the `cli-manifests` directory and update `cipipeline.yaml` to replace **YOUR_DOCKER_USERNAME** with your docker username. 
 
 Execute the following command to create the `cicd-gitops-pipeline` with the CI stage:
 
@@ -78,7 +97,7 @@ A Harness GitOps Cluster is the target deployment cluster that is compared to th
 Create a Harness GitOps Cluster by executing the following command:
 
 ```bash
-harness gitops-cluster --file gitops-cluster.yaml apply
+harness gitops-cluster --file gitops-cluster.yaml apply --agent-identifier $AGENT_NAME
 ```
 
 ### Create a GitOps Repository
@@ -88,7 +107,7 @@ A Harness GitOps Repository is a repo containing the declarative description of 
 Open `cli-manifests/gitops-repo.yaml` on your code editor and replace `YOUR_GITHUB_USERNAME` with your GitHub username. Create a Harness GitOps Repository by executing the following command:
 
 ```bash
-harness gitops-repository --file gitops-repo.yaml apply
+harness gitops-repository --file gitops-repo.yaml apply --agent-identifier $AGENT_NAME
 ```
 
 ### Create Harness GitOps Application using ApplicationSet
@@ -146,7 +165,7 @@ spec:
       source:  
         repoURL: https://github.com/YOUR_GITHUB_USERNAME/harness-gitops-workshop.git  
         targetRevision: HEAD  
-        path: "configs/git-generator-files-discovery"  
+        path: "configs/git-generator-files-discovery/apps/podinfo"  
       destination:  
         server: '{{cluster.address}}'  
         namespace: '{{cluster.namespace}}'  
@@ -164,7 +183,7 @@ Be sure to replace **YOUR_GITHUB_USERNAME** in both YAML files.
 Create a Harness GitOps Repository by executing the following command:
 
 ```bash
-harness gitops-application --file gitops-app.yaml apply
+harness gitops-application --file gitops-app.yaml apply --agent-identifier $AGENT_NAME
 ```
 
 The ApplicationSet CRD should create two Argo CD applications - one in the `dev` namespace and the other in the `prod` namespace.
@@ -183,7 +202,16 @@ Harness Pipelines define steps needed to built, test and deploy your application
 - Enforces a manual approval to proceed in deploying to to prod
 - Creates and merges a GitHub Pull Request of any configuration changes to the prod environment
 
-Harness pipelines require a [delegate](https://developer.harness.io/docs/first-gen/firstgen-platform/account/manage-delegates/delegate-installation/) to execute pipeline tasks. Run the following command to install the delegate in your cluster (the same cluster in which you have the agent installed). 
+Harness pipelines require a [delegate](https://developer.harness.io/docs/platform/delegates/delegate-concepts/delegate-overview/) to execute pipeline tasks. You'll need a delegate token as well. You can [reuse the default delegate token or create a new token](https://developer.harness.io/docs/platform/delegates/secure-delegates/secure-delegates-with-tokens/).
+
+Export Harness account ID and delegate token values as environment variables:
+
+```shell
+export HARNESS_ACCOUNT_ID=YOUR_HARNESS_ACCOUNT_ID
+export DELEGATE_TOKEN=YOUR_HARNESS_DELEGATE_TOKEN
+```
+
+Run the following command to install the delegate in your cluster (the same cluster in which you have the agent installed). 
 
 ```
 helm repo add harness-delegate https://app.harness.io/storage/harness-download/delegate-helm-chart/
@@ -191,8 +219,8 @@ helm repo update harness-delegate
 helm upgrade -i helm-delegate --namespace harness-delegate-ng --create-namespace \
   harness-delegate/harness-delegate-ng \
   --set delegateName=helm-delegate \
-  --set accountId=HARNESS_ACCOUNT_ID \
-  --set delegateToken=DELEGATE_TOKEN \
+  --set accountId=$HARNESS_ACCOUNT_ID \
+  --set delegateToken=$DELEGATE_TOKEN \
   --set managerEndpoint=https://app.harness.io/gratis \
   --set delegateDockerImage=harness/delegate:23.11.81601 \
   --set replicas=1 --set upgrader.enabled=true
@@ -208,18 +236,19 @@ harness environment --file environment-prod.yaml apply
 harness service --file service.yaml apply
 ```
 
-After applying the manifests, mavigate to the **Environments** tab. Click into each of the dev and prod environments and map your **gitops_cluster** to both of them.
+After applying the manifests, navigate to the **Environments** tab. Click on **dev** environment, then **GitOps Clusters**, and then **+ Select Cluster(s)**. Map your **gitops_cluster** to this environment. Do the same for the **prod** environment.
 
 Run the following command to update pipeline with CD stages.
 
 `harness pipeline --file prpipeline.yml apply`
 
-Finally, create a trigger to run the PR pipeline when new code is committed to the **main** branch.
-
+Finally, [create a trigger](https://developer.harness.io/docs/platform/triggers/triggering-pipelines/) to run the PR pipeline when new code is committed to the **main** branch.
 
 ## Test the setup
 
-## Automate using Terraform
+Commit a change to the **main** branch of https://github.com/YOUR_GITHUB_USERNAME/harness-gitops-workshop and this will trigger the PR pipeline. Observe that your commit SHA is tracked throughout the pipeline - from the image SHA to the config.json of the deployed applications.
+
+## Automate using Terraform [WORK IN PROGRESS]
 
 For this section, you need to [install Terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli).
 

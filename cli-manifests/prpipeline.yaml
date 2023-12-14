@@ -187,7 +187,7 @@ pipeline:
       name: imageRepo
       required: false
       type: String
-      value: nicholaslotz/harness-gitops-workshop
+      value: YOUR_GITHUB_USERNAME/harness-gitops-workshop
     - description: ""
       name: imageTag
       required: false
