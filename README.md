@@ -246,7 +246,10 @@ Finally, [create a trigger](https://developer.harness.io/docs/platform/triggers/
 
 ## Test the setup
 
-Commit a change to the **main** branch of https://github.com/YOUR_GITHUB_USERNAME/harness-gitops-workshop and this will trigger the PR pipeline. Observe that your commit SHA is tracked throughout the pipeline - from the image SHA to the config.json of the deployed applications.
+You can run the pipeline in one of two ways.
+
+1. Commit a change any non-`configs` file in the **main** branch of https://github.com/YOUR_GITHUB_USERNAME/harness-gitops-workshop and this will trigger the PR pipeline. Observe that your commit SHA is tracked throughout the pipeline - from the image SHA to the config.json of the deployed applications.
+2. Click **Run Pipeline** from the Harness UI and optionally provide any updates to environment config variables.
 
 ## Automate using Terraform [WORK IN PROGRESS]
 
