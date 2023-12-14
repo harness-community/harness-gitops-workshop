@@ -54,7 +54,7 @@ Make sure that you're in the `cli-manifests` directory and update `cipipeline.ya
 Execute the following command to create the `cicd-gitops-pipeline` with the CI stage:
 
 ```bash
-harness pipeline --file pipeline.yaml apply
+harness pipeline --file cipipeline.yaml apply
 ```
 
 ## Create the ApplicationSet 
@@ -240,7 +240,7 @@ After applying the manifests, navigate to the **Environments** tab. Click on **d
 
 Run the following command to update pipeline with CD stages.
 
-`harness pipeline --file prpipeline.yml apply`
+`harness pipeline --file prpipeline.yaml apply`
 
 Finally, [create a trigger](https://developer.harness.io/docs/platform/triggers/triggering-pipelines/) to run the PR pipeline when new code is committed to the **main** branch.
 
