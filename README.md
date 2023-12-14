@@ -7,8 +7,8 @@ In this workshop, we'll use the Harness CI, CD, and GitOps modules to demonstrat
 ## Pre-requisites
 
 - A Harness free plan. If you don't have one, [sign up for free](https://app.harness.io/auth/#/signup/?&utm_campaign=cd-devrel).
-- A GitHub account. [Fork the Harness GitOps repo](https://github.com/dewan-ahmed/harness-gitops-workshop/fork)
-- A Docker Hub account. However, any other image registry will also suffice.
+- A GitHub account. [Fork the Harness GitOps repo](https://github.com/harness-community/harness-gitops-workshop/fork)
+- A Docker Hub account.
 - A Kubernetes cluster. A setup like [k3d](https://k3d.io/) will be suitable.
 - [Install the Harness CLI](https://developer.harness.io/docs/platform/automation/cli/install/) and [log in](https://developer.harness.io/docs/platform/automation/cli/install/#configure-harness-cli).
 
