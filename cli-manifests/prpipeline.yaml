@@ -1,35 +1,44 @@
 pipeline:
-  identifier: cicdgitopspipeline
   name: cicd-gitops-pipeline
-  orgIdentifier: default
+  identifier: cicdgitopspipeline
   projectIdentifier: default_project
+  orgIdentifier: default
+  tags: {}
   properties:
     ci:
       codebase:
-        build: <+input>
         connectorRef: githubconnector
+        build: <+input>
   stages:
     - stage:
-        description: ""
-        identifier: cistage
         name: ci-stage
+        identifier: cistage
+        description: ""
+        type: CI
         spec:
           cloneCodebase: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
           execution:
             steps:
               - step:
-                  identifier: Run_OWASP_Tests
+                  type: Run
                   name: Run OWASP Tests
+                  identifier: Run_OWASP_Tests
                   spec:
+                    shell: Sh
                     command: |-
                       echo "Running OWASP tests..."
                       sleep 2
                       echo "OWASP tests passed!"
-                    shell: Sh
-                  type: Run
               - step:
-                  identifier: BuildAndPushDockerRegistry
+                  type: BuildAndPushDockerRegistry
                   name: BuildAndPushDockerRegistry
+                  identifier: BuildAndPushDockerRegistry
                   spec:
                     connectorRef: docker_connector
                     repo: <+pipeline.variables.imageRepo>
@@ -37,14 +46,6 @@ pipeline:
                       - <+pipeline.variables.imageTag>
                     dockerfile: apps/podinfo/Dockerfile
                     context: apps/podinfo
-                  type: BuildAndPushDockerRegistry
-          platform:
-            os: Linux
-            arch: Amd64
-          runtime:
-            type: Cloud
-            spec: {}
-        type: CI
     - stage:
         name: DeployDev
         identifier: DeployDev
@@ -54,26 +55,54 @@ pipeline:
           deploymentType: Kubernetes
           gitOpsEnabled: true
           service:
-            serviceRef: podinfo
-            serviceInputs:
-              serviceDefinition:
-                type: Kubernetes
-                spec:
-                  artifacts:
-                    primary:
-                      primaryArtifactRef: podinfoartifact
+            serviceRef: podinfoservice
           execution:
             steps:
+              - step:
+                  type: ShellScript
+                  name: UpdateDeploymentArtifact
+                  identifier: UpdateDeploymentArtifact
+                  spec:
+                    shell: Bash
+                    onDelegate: true
+                    source:
+                      type: Inline
+                      spec:
+                        script: |-
+                          export IMAGE_TAG="<+pipeline.variables.imageRepo>:<+pipeline.variables.imageTag>"
+                          rm -rf harness-gitops-workshop
+                          git config --global user.email ci-bot@argocd.com && git config --global user.name ci-bot
+                          echo "cloning repo..."
+                          echo "<+secrets.getValue("github_pat")>"
+                          GITHUBPAT=<+secrets.getValue("github_pat")>
+                          git clone https://oauth2:$GITHUBPAT@github.com/GITHUB_USERNAME/harness-gitops-workshop.git
+                          cd harness-gitops-workshop
+                          ls
+                          FILE_PATH="configs/git-generator-files-discovery/apps/podinfo/deployment.yaml"
+
+                          # Detect OS and set the sed in-place edit command accordingly
+                          if [[ "$OSTYPE" == "darwin"* ]]; then
+                              SED_COMMAND="sed -i ''"
+                          else
+                              SED_COMMAND="sed -i"
+                          fi
+
+                          echo "Updating image tag in deployment YAML"
+                          $SED_COMMAND "s|image: .*|image: $IMAGE_TAG|g" "$FILE_PATH"
+
+                          echo "Committing and pushing"
+                          git add .
+                          git commit -m "Update latest deployment artifact"
+                          git push
+                    environmentVariables: []
+                    outputVariables: []
+                  timeout: 10m
               - step:
                   type: GitOpsUpdateReleaseRepo
                   name: Update Release Repo
                   identifier: updateReleaseRepo
                   timeout: 10m
-                  spec:
-                    variables:
-                      - name: cluster.namespace
-                        type: String
-                        value: dev
+                  spec: {}
               - step:
                   type: MergePR
                   name: Merge PR
@@ -92,7 +121,7 @@ pipeline:
             environmentRef: dev
             deployToAll: false
             gitOpsClusters:
-              - identifier: gitopscluster
+              - identifier: podinfocluster
         tags: {}
         failureStrategies:
           - onFailure:
@@ -101,16 +130,16 @@ pipeline:
               action:
                 type: StageRollback
     - stage:
-        name: Approve Promotion
-        identifier: Approve_Promotion
+        name: ApprovePromoteProd
+        identifier: ApprovePromoteProd
         description: ""
         type: Approval
         spec:
           execution:
             steps:
               - step:
-                  name: Approve Promotion
-                  identifier: Approve_Promotion
+                  name: ApprovePromoteProd
+                  identifier: ApprovePromoteProd
                   type: HarnessApproval
                   timeout: 1d
                   spec:
@@ -135,14 +164,7 @@ pipeline:
           deploymentType: Kubernetes
           gitOpsEnabled: true
           service:
-            serviceRef: podinfo
-            serviceInputs:
-              serviceDefinition:
-                type: Kubernetes
-                spec:
-                  artifacts:
-                    primary:
-                      primaryArtifactRef: podinfoartifact
+            serviceRef: podinfoservice
           execution:
             steps:
               - step:
@@ -150,11 +172,7 @@ pipeline:
                   name: Update Release Repo
                   identifier: updateReleaseRepo
                   timeout: 10m
-                  spec:
-                    variables:
-                      - name: cluster.namespace
-                        type: String
-                        value: prod
+                  spec: {}
               - step:
                   type: MergePR
                   name: Merge PR
@@ -173,7 +191,7 @@ pipeline:
             environmentRef: prod
             deployToAll: false
             gitOpsClusters:
-              - identifier: gitopscluster
+              - identifier: podinfocluster
         tags: {}
         failureStrategies:
           - onFailure:
@@ -181,15 +199,14 @@ pipeline:
                 - AllErrors
               action:
                 type: StageRollback
-  tags: {}
   variables:
-    - description: ""
-      name: imageRepo
-      required: false
+    - name: imageRepo
       type: String
-      value: YOUR_GITHUB_USERNAME/harness-gitops-workshop
-    - description: ""
-      name: imageTag
+      description: ""
       required: false
+      value: GITHUB_USERNAME/harness-gitops-workshop
+    - name: imageTag
       type: String
+      description: ""
+      required: false
       value: <+trigger.commitSha>
