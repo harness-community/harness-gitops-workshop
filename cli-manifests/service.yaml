@@ -1,6 +1,6 @@
 service:
-  name: podinfoservice
-  identifier: podinfoservice
+  name: podinfo
+  identifier: podinfo
   orgIdentifier: default
   projectIdentifier: default_project
   serviceDefinition:
