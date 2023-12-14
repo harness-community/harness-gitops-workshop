@@ -101,7 +101,26 @@ pipeline:
                   name: Update Release Repo
                   identifier: updateReleaseRepo
                   timeout: 10m
-                  spec: {}
+                  spec:
+                    variables:
+                      - name: cluster.name
+                        type: String
+                        value: <+input>
+                      - name: cluster.owner
+                        type: String
+                        value: <+input>
+                      - name: cluster.address
+                        type: String
+                        value: <+input>
+                      - name: cluster.namespace
+                        type: String
+                        value: <+input>
+                      - name: asset_id
+                        type: String
+                        value: <+input>
+                      - name: aws_account
+                        type: String
+                        value: <+input>
               - step:
                   type: MergePR
                   name: Merge PR
@@ -171,7 +190,26 @@ pipeline:
                   name: Update Release Repo
                   identifier: updateReleaseRepo
                   timeout: 10m
-                  spec: {}
+                  spec:
+                    variables:
+                      - name: cluster.name
+                        type: String
+                        value: <+input>
+                      - name: cluster.owner
+                        type: String
+                        value: <+input>
+                      - name: cluster.address
+                        type: String
+                        value: <+input>
+                      - name: cluster.namespace
+                        type: String
+                        value: <+input>
+                      - name: asset_id
+                        type: String
+                        value: <+input>
+                      - name: aws_account
+                        type: String
+                        value: <+input>
               - step:
                   type: MergePR
                   name: Merge PR
@@ -203,9 +241,9 @@ pipeline:
       type: String
       description: ""
       required: false
-      value: GITHUB_USERNAME/harness-gitops-workshop
+      value: DOCKER_HUB_USERNAME/harness-gitops-workshop
     - name: imageTag
       type: String
       description: ""
       required: false
-      value: <+trigger.commitSha>
+      value: <+codebase.commitSha>
