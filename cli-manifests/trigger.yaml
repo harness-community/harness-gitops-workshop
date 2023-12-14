@@ -22,6 +22,9 @@ trigger:
             - key: targetBranch
               operator: Equals
               value: main
+            - key: changedFiles
+              operator: StartsWith
+              value: configs/git-generator-files-discovery/cluster-config/engineering/
           headerConditions: []
           actions: []
   inputYaml: |
