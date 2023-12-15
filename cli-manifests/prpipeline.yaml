@@ -139,7 +139,7 @@ pipeline:
             environmentRef: dev
             deployToAll: false
             gitOpsClusters:
-              - identifier: podinfocluster
+              - identifier: gitopscluster
         tags: {}
         failureStrategies:
           - onFailure:
@@ -228,7 +228,7 @@ pipeline:
             environmentRef: prod
             deployToAll: false
             gitOpsClusters:
-              - identifier: podinfocluster
+              - identifier: gitopscluster
         tags: {}
         failureStrategies:
           - onFailure:
