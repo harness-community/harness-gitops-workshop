@@ -1,6 +1,10 @@
-graph LR;
-    A(GitOps Agent) --> |runs commands in| B(GitOps Cluster);
-    B --> |is compute <br/> infrastructure in| D(Environment);
-    F(Service) --> |represenents deployed <br\> workload of| E(Application);
-    G(Repository) --> |contains deployment <br/> manifests for| F;
-    D --> |is deployment <br/> target for| E;
+---
+title: "Example: Harness GitOps Entity Relationships"
+---
+erDiagram
+    GITOPS-AGENT ||--o{ GITOPS-CLUSTER : "runs commands in"
+    GITOPS-CLUSTER }o--o| ENVIRONMENT : "is compute infrastructure for"
+    SERVICE |o--o{ APPLICATION : "represenents deployed workload of"
+    ENVIRONMENT }o--o{ APPLICATION : "is deployment target for"
+    REPOSITORY |o--o{ SERVICE : "contains deployment manifests for"
+    REPOSITORY ||--o{ APPLICATION: "hosts declarative state of"
