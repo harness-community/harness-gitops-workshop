@@ -1,0 +1,6 @@
+graph LR;
+    A(GitOps Agent) --> |runs commands in| B(GitOps Cluster);
+    B --> |is compute <br/> infrastructure in| D(Environment);
+    F(Service) --> |represenents deployed <br\> workload of| E(Application);
+    G(Repository) --> |contains deployment <br/> manifests for| F;
+    D --> |is deployment <br/> target for| E;
