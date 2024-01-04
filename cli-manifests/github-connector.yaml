@@ -2,18 +2,17 @@ connector:
   name: github-connector
   identifier: githubconnector
   description: ""
-  accountIdentifier: YOUR_HARNESS_ACCOUNT_ID
   orgIdentifier: default
   projectIdentifier: default_project
   type: Github
   spec:
-    url: https://github.com/YOUR_GITHUB_USERNAME/harness-gitops-workshop
+    url: https://github.com/GITHUB_USERNAME/harness-gitops-workshop
     authentication:
       type: Http
       spec:
         type: UsernameToken
         spec:
-          username: YOUR_GITHUB_USERNAME
+          username: GITHUB_USERNAME
           tokenRef: github_pat
     apiAccess:
       type: Token
