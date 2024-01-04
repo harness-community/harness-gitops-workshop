@@ -11,7 +11,7 @@ gitops:
         harness.io/envRef: ""
     spec:
       source:
-        repoURL: https://github.com/YOUR_GITHUB_USERNAME/harness-gitops-workshop
+        repoURL: https://github.com/GITHUB_USERNAME/harness-gitops-workshop
         path: configs/git-generator-files-discovery
         targetRevision: main
       destination:
