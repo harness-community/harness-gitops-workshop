@@ -5,7 +5,7 @@ gitops:
     orgIdentifier: default
     type: repository
     repo:
-        repo: https://github.com/YOUR_GITHUB_USERNAME/harness-gitops-workshop
+        repo: https://github.com/GITHUB_USERNAME/harness-gitops-workshop
         type: git
         connectionType: HTTPS_ANONYMOUS
     agentIdentifier: AGENT_NAME
