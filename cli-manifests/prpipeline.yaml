@@ -246,4 +246,4 @@ pipeline:
       type: String
       description: ""
       required: false
-      value: <+codebase.commitSha>
+      value: <+trigger.commitSha>
