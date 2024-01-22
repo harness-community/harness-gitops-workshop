@@ -117,7 +117,7 @@ pipeline:
                         value: <+input>
                       - name: asset_id
                         type: String
-                        value: <+input>
+                        value: <+trigger.gitUser>-<+trigger.commitSha>
                       - name: aws_account
                         type: String
                         value: <+input>
@@ -206,7 +206,7 @@ pipeline:
                         value: <+input>
                       - name: asset_id
                         type: String
-                        value: <+input>
+                        value: <+trigger.gitUser>-<+trigger.commitSha>
                       - name: aws_account
                         type: String
                         value: <+input>
