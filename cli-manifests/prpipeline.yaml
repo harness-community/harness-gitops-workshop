@@ -26,15 +26,21 @@ pipeline:
           execution:
             steps:
               - step:
-                  type: Run
-                  name: Run OWASP Tests
-                  identifier: Run_OWASP_Tests
+                  type: Owasp
+                  name: Run OWASP Scan
+                  identifier: Run_OWASP_Scan
                   spec:
-                    shell: Sh
-                    command: |-
-                      echo "Running OWASP tests..."
-                      sleep 2
-                      echo "OWASP tests passed!"
+                    mode: orchestration
+                    config: default
+                    target:
+                      type: repository
+                      workspace: apps/podinfo
+                      name: Harness GitOps Workshop
+                      variant: main
+                    advanced:
+                      log:
+                        level: info
+                      fail_on_severity: none  
               - step:
                   type: BuildAndPushDockerRegistry
                   name: BuildAndPushDockerRegistry
