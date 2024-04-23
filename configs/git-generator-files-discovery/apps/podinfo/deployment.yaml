@@ -55,7 +55,7 @@ spec:
             - http
             - localhost:9898/healthz
           initialDelaySeconds: 5
-          timeoutSeconds: 5
+          timeoutSeconds: 10
         readinessProbe:
           exec:
             command:
@@ -64,7 +64,7 @@ spec:
             - http
             - localhost:9898/readyz
           initialDelaySeconds: 5
-          timeoutSeconds: 5
+          timeoutSeconds: 10
         resources:
           limits:
             cpu: 2000m
