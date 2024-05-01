@@ -109,24 +109,9 @@ pipeline:
                   timeout: 10m
                   spec:
                     variables:
-                      - name: cluster.name
-                        type: String
-                        value: <+input>
-                      - name: cluster.owner
-                        type: String
-                        value: <+input>
-                      - name: cluster.address
-                        type: String
-                        value: <+input>
-                      - name: cluster.namespace
-                        type: String
-                        value: <+input>
                       - name: asset_id
                         type: String
                         value: <+trigger.gitUser>-<+trigger.commitSha>
-                      - name: aws_account
-                        type: String
-                        value: <+input>
               - step:
                   type: MergePR
                   name: Merge PR
@@ -198,24 +183,9 @@ pipeline:
                   timeout: 10m
                   spec:
                     variables:
-                      - name: cluster.name
-                        type: String
-                        value: <+input>
-                      - name: cluster.owner
-                        type: String
-                        value: <+input>
-                      - name: cluster.address
-                        type: String
-                        value: <+input>
-                      - name: cluster.namespace
-                        type: String
-                        value: <+input>
                       - name: asset_id
                         type: String
                         value: <+trigger.gitUser>-<+trigger.commitSha>
-                      - name: aws_account
-                        type: String
-                        value: <+input>
               - step:
                   type: MergePR
                   name: Merge PR
